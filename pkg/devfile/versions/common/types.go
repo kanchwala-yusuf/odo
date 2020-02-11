@@ -5,10 +5,11 @@ package common
 type DevfileProjectType string
 
 const (
-	DevfileProjectTypeGit DevfileProjectType = "git"
+	DevfileProjectTypeGit   DevfileProjectType = "git"
+	DevfileProjectTypeLocal DevfileProjectType = "local"
 )
 
-var SupportedDevfileProjectTypes = []DevfileProjectType{DevfileProjectTypeGit}
+var SupportedDevfileProjectTypes = []DevfileProjectType{DevfileProjectTypeGit, DevfileProjectTypeLocal}
 
 // -------------- Supported devfile component types ------------ //
 // DevfileComponentType stores valid devfile component types

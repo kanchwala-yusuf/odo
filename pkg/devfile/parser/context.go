@@ -11,23 +11,26 @@ import (
 // DevfileCtx stores context info regarding devfile
 type DevfileCtx struct {
 
-	// devfile ApiVersion
-	apiVersion string
-
 	// absolute path of devfile
 	absPath string
 
-	// relative path of devfile
-	relPath string
+	// devfile ApiVersion
+	apiVersion string
 
-	// raw content of the devfile
-	rawContent []byte
+	// filesystem for devfile
+	Fs filesystem.Filesystem
 
 	// devfile json schema
 	jsonSchema string
 
-	// filesystem for devfile
-	Fs filesystem.Filesystem
+	// parent devfile path
+	parentPath string
+
+	// raw content of the devfile
+	rawContent []byte
+
+	// relative path of devfile
+	relPath string
 }
 
 // NewDevfileCtx returns a new DevfileCtx type object
@@ -62,6 +65,11 @@ func (d *DevfileCtx) Populate() (err error) {
 		return fmt.Errorf("devfile apiVersion '%s' not supported in odo", d.apiVersion)
 	}
 	glog.V(4).Infof("devfile apiVersion '%s' is supported in odo", d.apiVersion)
+
+	// Get devfile parent
+	if err := d.SetDevfileParentPath(); err != nil {
+		return err
+	}
 
 	// Read and save devfile JSON schema for provided apiVersion
 	if err := d.SetDevfileJSONSchema(); err != nil {
