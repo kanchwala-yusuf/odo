@@ -22,14 +22,6 @@ func Parse(path string) (d DevfileObj, err error) {
 		return d, err
 	}
 
-	/*
-		// Validate devfile
-		err = d.Ctx.Validate()
-		if err != nil {
-			return d, err
-		}
-	*/
-
 	// Create a new devfile data object
 	d.Data, err = versions.NewDevfileData(d.Ctx.GetApiVersion())
 	if err != nil {
@@ -64,13 +56,17 @@ func Parse(path string) (d DevfileObj, err error) {
 		}
 	}
 
-	/*
-		// Validate devfile data
-		err = d.Data.Validate()
-		if err != nil {
-			return d, err
-		}
-	*/
+	// Validate devfile context
+	err = d.Ctx.Validate()
+	if err != nil {
+		return d, err
+	}
+
+	// Validate devfile data
+	err = d.Data.Validate()
+	if err != nil {
+		return d, err
+	}
 
 	// Successful
 	return d, nil

@@ -34,6 +34,20 @@ const JsonSchema100 = `{
     ],
     "additionalProperties": false,
     "properties": {
+			  "parent": {
+            "type": "object",
+            "properties": {
+                "uri": {
+                    "type": "string",
+                    "minLength": 1,
+                    "title": "Parent Devfile Path",
+                    "description": "Path of the parent devfile.",
+                    "examples": [
+                        "https://raw.githubusercontent.com/eclipse/che-devfile-registry/master/devfiles/java-web-spring/devfile.yaml"
+                    ]
+                }
+            }
+				},
         "apiVersion": {
             "const": "1.0.0",
             "title": "Devfile API Version"
