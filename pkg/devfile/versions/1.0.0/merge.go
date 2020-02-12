@@ -1,7 +1,6 @@
 package version100
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/openshift/odo/pkg/devfile/versions/common"
@@ -32,8 +31,6 @@ func IsFieldPresentInStruct(Iface interface{}, FieldName string) bool {
 // MergeDevfile combines parent and local devfiles
 func (local *Devfile100) MergeDevfiles(p interface{}) error {
 
-	fmt.Println("merging devfiles")
-
 	// devfile fields
 	fields := []string{"Metadata", "Projects", "Components", "Commands"}
 
@@ -54,6 +51,11 @@ func (local *Devfile100) MergeDevfiles(p interface{}) error {
 				local.mergeProjects(parent.Projects)
 			}
 		case "Components":
+			// If parent devfile does not have "Components" field, then nothing needs
+			// to be done
+			if IsFieldPresentInStruct(parent, f) {
+				local.mergeComponents(parent.Components)
+			}
 		case "Commands":
 			// If parent devfile does not have "Commands" field, then nothing needs
 			// to be done
@@ -119,6 +121,47 @@ func (local *Devfile100) mergeCommands(parentCommands []common.DevfileCommand) e
 	for _, command := range parentCommands {
 		if _, ok := localCommandsMap[command.Name]; !ok {
 			local.Commands = append(local.Commands, command)
+		}
+	}
+
+	// successfull
+	return nil
+}
+
+func (local *Devfile100) mergeComponents(parentComponents []common.DevfileComponent) error {
+
+	// if list of parent components is empty, then nothing needs to be done
+	if len(parentComponents) < 1 {
+		return nil
+	}
+
+	// if list of local components is empty, then merge parent components
+	if len(local.Components) < 1 {
+		local.Components = append(local.Components, parentComponents...)
+		return nil
+	}
+
+	// make a map of component names and component type
+	localComponentsMap := make(map[string]bool)
+	for _, component := range local.Components {
+
+		if component.Type == common.DevfileComponentTypeCheEditor || component.Type == common.DevfileComponentTypeChePlugin {
+			localComponentsMap[string(component.Type)] = true
+		} else if component.Alias != nil {
+			localComponentsMap[*component.Alias] = true
+		}
+	}
+
+	// if parent has component which are not in local devfile
+	for _, component := range parentComponents {
+		if component.Type == common.DevfileComponentTypeCheEditor || component.Type == common.DevfileComponentTypeChePlugin {
+			if _, ok := localComponentsMap[string(component.Type)]; !ok {
+				local.Components = append(local.Components, component)
+			}
+		} else if component.Id != nil {
+			if _, ok := localComponentsMap[*component.Id]; !ok {
+				local.Components = append(local.Components, component)
+			}
 		}
 	}
 
