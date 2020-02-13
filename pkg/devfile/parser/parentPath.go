@@ -32,15 +32,21 @@ func (d *DevfileCtx) SetDevfileParentPath() error {
 
 	// Get "parentPath" value from the map
 	parent := r["parent"].(map[string]interface{})
-	parentPath, ok := parent["uri"]
+	uri, ok := parent["uri"]
 	if !ok {
 		glog.V(4).Infof("'parent.uri' not present in devfile")
 		d.parentPath = ""
 		return nil
 	}
 
+	// fetch file path from parent uri
+	parentPath, err := fetchFilePath(uri.(string))
+	if err != nil {
+		return errors.Wrapf(err, "failed to fetch file from parent uri")
+	}
+
 	// Successful
-	d.parentPath = parentPath.(string)
+	d.parentPath = parentPath
 	glog.V(4).Infof("devfile parentPath: '%s'", d.parentPath)
 	return nil
 }
